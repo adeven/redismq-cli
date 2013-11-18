@@ -37,13 +37,13 @@ func runHelp(cmd *Command, args []string) {
 }
 
 var usageTemplate = template.Must(template.New("usage").Parse(`
-Usage: redismq [command] [options] [arguments]
+Usage: redismq_cli [command] [options] [arguments]
 
 Commands:
 {{range .Commands}}{{if .Runnable}}{{if .List}}
     {{.Name | printf "%-8s"}}  {{.Short}}{{end}}{{end}}{{end}}
 
-Run 'redismq help [command]' for details.
+Run 'redismq_cli help [command]' for details.
 
 `[1:]))
 

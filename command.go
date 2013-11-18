@@ -25,7 +25,7 @@ type Command struct {
 
 func (c *Command) printUsage() {
 	if c.Runnable() {
-		fmt.Printf("Usage: redismq %s\n\n", c.Usage)
+		fmt.Printf("Usage: redismq_cli %s\n\n", c.Usage)
 	}
 	fmt.Println(strings.Trim(c.Long, "\n"))
 }
