@@ -19,6 +19,7 @@ var (
 
 var commands = []*Command{
 	cmdCreate,
+	cmdImport,
 }
 
 type Command struct {
@@ -51,15 +52,20 @@ func (c *Command) Runnable() bool {
 	return c.Run != nil
 }
 
+func (c *Command) List() bool {
+	return c.Short != ""
+}
+
 func checkRedisConnection() {
 	if RedisURL == "" {
 		RedisURL = "localhost:6379"
-		//fmt.Fprintln(os.Stderr, "REDISMQ_URL not found in env, falling back to 'localhost:6379'\n")
+		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_URL not found in env, falling back to 'localhost:6379'")
 	}
 	if RedisDB == "" {
 		RedisDB = "9"
-		//fmt.Fprintln(os.Stderr, "REDISMQ_DB not found in env, falling back to '9'\n")
+		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_DB not found in env, falling back to '9'\n")
 	}
+
 	RedisDBInt, err := strconv.ParseInt(RedisDB, 10, 64)
 	if err != nil {
 		fmt.Fprintln(os.Stderr, err)
@@ -79,6 +85,9 @@ func main() {
 	checkRedisConnection()
 
 	args := os.Args[1:]
+	if len(args) < 1 {
+		usage()
+	}
 
 	for _, cmd := range commands {
 		if cmd.Name() == args[0] && cmd.Run != nil {
@@ -93,4 +102,6 @@ func main() {
 		}
 	}
 
+	fmt.Fprintf(os.Stderr, "Unknown command: %s\n", args[0])
+	usage()
 }
