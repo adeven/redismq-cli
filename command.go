@@ -7,6 +7,7 @@ import (
 )
 
 var commands = []*Command{
+	cmdList,
 	cmdCreate,
 	cmdImport,
 	cmdExport,
