@@ -9,7 +9,7 @@ import (
 var cmdCreate = &Command{
 	Run:   runCreate,
 	Usage: "create [queue name]",
-	Short: "create a queue",
+	Short: "create a new queue",
 	Long:  `Create creates a new redismq queue.`,
 }
 

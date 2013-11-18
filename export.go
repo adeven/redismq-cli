@@ -17,10 +17,12 @@ It's not adviced to read from the queue while exporting when using the requeue f
 
 Options:
 
-    -f		file name to write to
-    -c		the number of packages to write
-    -r		requeue packages (if set the queue will just be rotated)
-    -v		verbose mode (display each export)
+    -f		file name to export to
+    -c		the number of packages to export
+    -r		requeue packages after export
+    -v		verbose mode (print each payload)
+
+If no file name is given the output will be directed to stdout.
 `,
 }
 
@@ -48,12 +50,15 @@ func runExport(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
-	file, err := os.Create(fileName)
-	if err != nil {
-		fmt.Printf("error creating file %s: %s\n", fileName, err.Error())
-		os.Exit(2)
+	var file *os.File
+	if fileName != "" {
+		file, err = os.Create(fileName)
+		if err != nil {
+			fmt.Printf("error creating file %s: %s\n", fileName, err.Error())
+			os.Exit(2)
+		}
+		defer file.Close()
 	}
-	defer file.Close()
 
 	lineCount := int64(0)
 	exported := int64(0)
@@ -90,7 +95,11 @@ func runExport(cmd *Command, args []string) {
 			break
 		}
 
-		file.WriteString(p.Payload)
+		if file != nil {
+			file.WriteString(p.Payload)
+		} else {
+			fmt.Print(p.Payload)
+		}
 
 		if flagRequeue {
 			err = p.Requeue()
@@ -108,6 +117,8 @@ func runExport(cmd *Command, args []string) {
 		}
 
 	}
-	file.Sync()
-	fmt.Printf("finished exported %d package(s)\n", exported)
+	if file != nil {
+		file.Sync()
+	}
+	fmt.Printf("\n\nfinished exporting %d package(s)\n", exported)
 }

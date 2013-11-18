@@ -9,7 +9,7 @@ import (
 
 var cmdImport = &Command{
 	Run:   runImport,
-	Usage: "import [-f filename] [-c count] [-o offset] [-v] [queue name]",
+	Usage: "import -f filename [-c count] [-o offset] [-v] [queue name]",
 	Short: "import each new line as package into a queue",
 	Long: `
 Imports files to queues. Each line will be a new package.
@@ -56,6 +56,7 @@ func runImport(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 	defer file.Close()
+	// TODO fall back to stdin
 	reader := bufio.NewReader(file)
 
 	lineCount := int64(0)
