@@ -25,15 +25,15 @@ Options:
 
 var (
 	fileName    string
-	offset      int
-	maxCount    int
+	offset      int64
+	maxCount    int64
 	flagVerbose bool
 )
 
 func init() {
 	cmdImport.Flag.StringVar(&fileName, "f", "", "file name")
-	cmdImport.Flag.IntVar(&offset, "o", 0, "offset")
-	cmdImport.Flag.IntVar(&maxCount, "c", 0, "count")
+	cmdImport.Flag.Int64Var(&offset, "o", 0, "offset")
+	cmdImport.Flag.Int64Var(&maxCount, "c", 0, "count")
 	cmdImport.Flag.BoolVar(&flagVerbose, "v", false, "verbose mode")
 }
 
@@ -55,10 +55,11 @@ func runImport(cmd *Command, args []string) {
 		fmt.Printf("error opening file %s: %s", fileName, err.Error())
 		os.Exit(2)
 	}
+	defer file.Close()
 	reader := bufio.NewReader(file)
 
-	lineCount := 0
-	imported := 0
+	lineCount := int64(0)
+	imported := int64(0)
 
 	for err == nil {
 		lineCount++
@@ -71,6 +72,13 @@ func runImport(cmd *Command, args []string) {
 			break
 		}
 
+		if line == "\n" {
+			if flagVerbose {
+				fmt.Printf("skipping empty line %d\n", lineCount)
+			}
+			continue
+		}
+
 		if lineCount > offset {
 			queue.Put(line)
 			imported++
@@ -80,5 +88,4 @@ func runImport(cmd *Command, args []string) {
 		}
 	}
 	fmt.Printf("finished importing %d package(s)\n", imported)
-
 }
