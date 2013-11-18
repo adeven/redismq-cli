@@ -9,7 +9,7 @@ import (
 
 var cmdImport = &Command{
 	Run:   runImport,
-	Usage: "import [-f filename] [-c count] [-o offset] [queue name]",
+	Usage: "import [-f filename] [-c count] [-o offset] [-v] [queue name]",
 	Short: "import each new line as package into a queue",
 	Long: `
 Imports files to queues. Each line will be a new package.
@@ -19,19 +19,22 @@ Options:
     -f		file name to read from
     -c		the number of lines to read
     -o 		the number of lines to skip before reading
+    -v		verbose mode (display each import)
 `,
 }
 
 var (
-	fileName string
-	offset   int
-	maxCount int
+	fileName    string
+	offset      int
+	maxCount    int
+	flagVerbose bool
 )
 
 func init() {
 	cmdImport.Flag.StringVar(&fileName, "f", "", "file name")
 	cmdImport.Flag.IntVar(&offset, "o", 0, "offset")
 	cmdImport.Flag.IntVar(&maxCount, "c", 0, "count")
+	cmdImport.Flag.BoolVar(&flagVerbose, "v", false, "verbose mode")
 }
 
 func runImport(cmd *Command, args []string) {
@@ -68,11 +71,12 @@ func runImport(cmd *Command, args []string) {
 			break
 		}
 
-		if offset != 0 && lineCount > offset {
+		if lineCount > offset {
 			queue.Put(line)
 			imported++
-
-			fmt.Printf("imported line %d %s", lineCount, line)
+			if flagVerbose {
+				fmt.Printf("imported line %d %s", lineCount, line)
+			}
 		}
 	}
 	fmt.Printf("finished importing %d package(s)\n", imported)
