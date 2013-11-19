@@ -8,6 +8,7 @@ import (
 
 var commands = []*Command{
 	cmdList,
+	cmdInfo,
 	cmdCreate,
 	cmdImport,
 	cmdExport,
@@ -27,7 +28,7 @@ type Command struct {
 
 func (c *Command) printUsage() {
 	if c.Runnable() {
-		fmt.Printf("Usage: redismq_cli %s\n\n", c.Usage)
+		fmt.Printf("Usage: redismq-cli %s\n\n", c.Usage)
 	}
 	fmt.Println(strings.Trim(c.Long, "\n"))
 }
@@ -47,4 +48,13 @@ func (c *Command) Runnable() bool {
 
 func (c *Command) List() bool {
 	return c.Short != ""
+}
+
+func stringInSlice(a string, list []string) bool {
+	for _, b := range list {
+		if b == a {
+			return true
+		}
+	}
+	return false
 }

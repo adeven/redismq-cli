@@ -20,8 +20,8 @@ func runCreate(cmd *Command, args []string) {
 	}
 
 	name := args[0]
-	_, err := redismq.SelectQueue(RedisURL, RedisPassword, RedisDBInt, name)
-	if err == nil {
+	queues, _ := redismq.ListQueues(RedisURL, RedisPassword, RedisDBInt)
+	if stringInSlice(name, queues) {
 		fmt.Printf("queue with the name %s already exists\n", name)
 		os.Exit(2)
 	}

@@ -33,5 +33,5 @@ func runList(cmd *Command, args []string) {
 		fmt.Println("\t" + queue)
 	}
 	fmt.Println("")
-	fmt.Println("To show details for a specific queue use:\n\tredismq_cli info [queue name]")
+	fmt.Println("To show details for a specific queue use:\n\tredismq-cli info [queue name]")
 }
