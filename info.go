@@ -26,7 +26,7 @@ func runInfo(cmd *Command, args []string) {
 	ob := redismq.NewObserver(RedisURL, RedisPassword, RedisDBInt)
 	queues, err := ob.GetAllQueues()
 	if err != nil {
-		fmt.Printf("error fetching queue statistics: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error fetching queue statistics: %s\n", err)
 		os.Exit(2)
 	}
 
@@ -38,7 +38,7 @@ func runInfo(cmd *Command, args []string) {
 	if len(args) == 1 {
 		name := args[0]
 		if !stringInSlice(name, queues) {
-			fmt.Printf("queue with the name %s does not exists\n", name)
+			fmt.Fprintf(os.Stderr, "queue with the name %s does not exists\n", name)
 			os.Exit(2)
 		}
 		ob.UpdateQueueStats(name)

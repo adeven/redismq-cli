@@ -46,7 +46,7 @@ func runExport(cmd *Command, args []string) {
 	name := args[0]
 	queue, err := redismq.SelectQueue(RedisURL, RedisPassword, RedisDBInt, name)
 	if err != nil {
-		fmt.Printf("queue with the name %s doesn't exists\n", name)
+		fmt.Fprintf(os.Stderr, "queue with the name %s does not exists\n", name)
 		os.Exit(2)
 	}
 
@@ -54,7 +54,7 @@ func runExport(cmd *Command, args []string) {
 	if fileName != "" {
 		file, err = os.Create(fileName)
 		if err != nil {
-			fmt.Printf("error creating file %s: %s\n", fileName, err.Error())
+			fmt.Fprintf(os.Stderr, "error creating file %s: %s\n", fileName, err.Error())
 			os.Exit(2)
 		}
 		defer file.Close()
@@ -73,7 +73,7 @@ func runExport(cmd *Command, args []string) {
 	if consumer.HasUnacked() {
 		err := consumer.RequeueWorking()
 		if err != nil {
-			fmt.Printf("error requeing unacked packages %s\n", err.Error())
+			fmt.Fprintf(os.Stderr, "error requeing unacked packages %s\n", err.Error())
 			os.Exit(2)
 		}
 		fmt.Println("found unacked packages...requeued")
@@ -87,7 +87,7 @@ func runExport(cmd *Command, args []string) {
 
 		p, err := consumer.NoWaitGet()
 		if err != nil {
-			fmt.Printf("error fetching package from queue: %s", err.Error())
+			fmt.Fprintf(os.Stderr, "error fetching package from queue: %s", err.Error())
 			os.Exit(2)
 		}
 
@@ -107,7 +107,7 @@ func runExport(cmd *Command, args []string) {
 			err = p.Ack()
 		}
 		if err != nil {
-			fmt.Printf("error ack/requeing package to queue: %s", err.Error())
+			fmt.Fprintf(os.Stderr, "error ack/requeing package to queue: %s", err.Error())
 			os.Exit(2)
 		}
 

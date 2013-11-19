@@ -46,13 +46,13 @@ func runImport(cmd *Command, args []string) {
 	name := args[0]
 	queue, err := redismq.SelectQueue(RedisURL, RedisPassword, RedisDBInt, name)
 	if err != nil {
-		fmt.Printf("queue with the name %s doesn't exists\n", name)
+		fmt.Fprintf(os.Stderr, "queue with the name %s doesn't exists\n", name)
 		os.Exit(2)
 	}
 
 	file, err := os.Open(fileName)
 	if err != nil {
-		fmt.Printf("error opening file %s: %s", fileName, err.Error())
+		fmt.Fprintf(os.Stderr, "error opening file %s: %s", fileName, err.Error())
 		os.Exit(2)
 	}
 	defer file.Close()

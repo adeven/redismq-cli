@@ -8,7 +8,9 @@ import (
 )
 
 var (
-	RedisURL      = os.Getenv("REDISMQ_URL")
+	RedisURL      = ""
+	RedisHost     = os.Getenv("REDISMQ_HOST")
+	RedisPort     = os.Getenv("REDISMQ_PORT")
 	RedisDB       = os.Getenv("REDISMQ_DB")
 	RedisPassword = os.Getenv("REDISMQ_PASSWORD")
 
@@ -16,14 +18,20 @@ var (
 )
 
 func checkRedisConnection() {
-	if RedisURL == "" {
-		RedisURL = "localhost:6379"
-		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_URL not found in env, falling back to 'localhost:6379'")
+	if RedisHost == "" {
+		RedisHost = "localhost"
+		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_HOST not found in env, falling back to 'localhost'")
+	}
+	if RedisPort == "" {
+		RedisPort = "6379"
+		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_PORT not found in env, falling back to '6379'")
 	}
 	if RedisDB == "" {
 		RedisDB = "9"
 		fmt.Fprintln(os.Stderr, "WARNING: REDISMQ_DB not found in env, falling back to '9'\n")
 	}
+
+	RedisURL = RedisHost + ":" + RedisPort
 
 	RedisDBInt, err := strconv.ParseInt(RedisDB, 10, 64)
 	if err != nil {
