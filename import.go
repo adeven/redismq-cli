@@ -9,7 +9,7 @@ import (
 
 var cmdImport = &Command{
 	Run:   runImport,
-	Usage: "import -f filename [-c count] [-o offset] [-v] [queue name]",
+	Usage: "import [options] -f filename [-c count] [-o offset] [-v] [queue name]",
 	Short: "import each new line as package into a queue",
 	Long: `
 Imports files to queues. Each line will be a new package.
@@ -31,6 +31,10 @@ var (
 )
 
 func init() {
+	cmdImport.Flag.StringVar(&RedisHost, "host", "localhost", "redis hostname")
+	cmdImport.Flag.StringVar(&RedisPort, "port", "6379", "redis port")
+	cmdImport.Flag.StringVar(&RedisPassword, "pass", "", "redis password")
+	cmdImport.Flag.Int64Var(&RedisDB, "db", 9, "redis database")
 	cmdImport.Flag.StringVar(&fileName, "f", "", "file name")
 	cmdImport.Flag.Int64Var(&offset, "o", 0, "offset")
 	cmdImport.Flag.Int64Var(&maxCount, "c", 0, "count")
@@ -44,9 +48,9 @@ func runImport(cmd *Command, args []string) {
 	}
 
 	name := args[0]
-	queue, err := redismq.SelectQueue(RedisURL, RedisPassword, RedisDBInt, name)
+	queue, err := redismq.SelectQueue(RedisHost, RedisPort, RedisPassword, RedisDB, name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "queue with the name %s doesn't exists\n", name)
+		fmt.Fprintf(os.Stderr, "queue with the name %s doesn't exists on %s:%s db %d\n", name, RedisHost, RedisPort, RedisDB)
 		os.Exit(2)
 	}
 
@@ -88,5 +92,5 @@ func runImport(cmd *Command, args []string) {
 			}
 		}
 	}
-	fmt.Printf("finished importing %d package(s)\n", imported)
+	fmt.Printf("finished importing %d package(s) to %s:%s db %d\n", imported, RedisHost, RedisPort, RedisDB)
 }
