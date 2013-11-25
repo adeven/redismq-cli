@@ -8,7 +8,7 @@ import (
 
 var cmdExport = &Command{
 	Run:   runExport,
-	Usage: "export [-f filename] [-c count] [-o offset] [-r] [-v] [queue name]",
+	Usage: "export [options] [-f filename] [-c count] [-o offset] [-r] [-v] [queue name]",
 	Short: "export each package from a queue to a file",
 	Long: `
 "Exports each package from a queue to a file.
@@ -31,6 +31,10 @@ var (
 )
 
 func init() {
+	cmdExport.Flag.StringVar(&RedisHost, "host", "localhost", "redis hostname")
+	cmdExport.Flag.StringVar(&RedisPort, "port", "6379", "redis port")
+	cmdExport.Flag.StringVar(&RedisPassword, "pass", "", "redis password")
+	cmdExport.Flag.Int64Var(&RedisDB, "db", 9, "redis database")
 	cmdExport.Flag.StringVar(&fileName, "f", "", "file name")
 	cmdExport.Flag.Int64Var(&maxCount, "c", 0, "count")
 	cmdExport.Flag.BoolVar(&flagVerbose, "v", false, "verbose mode")
@@ -44,9 +48,9 @@ func runExport(cmd *Command, args []string) {
 	}
 
 	name := args[0]
-	queue, err := redismq.SelectQueue(RedisURL, RedisPassword, RedisDBInt, name)
+	queue, err := redismq.SelectQueue(RedisHost, RedisPort, RedisPassword, RedisDB, name)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "queue with the name %s does not exists\n", name)
+		fmt.Fprintf(os.Stderr, "queue with the name %s does not exists on %s:%s db %d\n", name, RedisHost, RedisPort, RedisDB)
 		os.Exit(2)
 	}
 
@@ -120,5 +124,5 @@ func runExport(cmd *Command, args []string) {
 	if file != nil {
 		file.Sync()
 	}
-	fmt.Printf("\n\nfinished exporting %d package(s)\n", exported)
+	fmt.Printf("\n\nfinished exporting %d package(s) from %s:%s db %d\n", exported, RedisHost, RedisPort, RedisDB)
 }

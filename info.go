@@ -9,12 +9,19 @@ import (
 
 var cmdInfo = &Command{
 	Run:   runInfo,
-	Usage: "info [queue name]",
+	Usage: "info [options] [queue name]",
 	Short: "info returns statistical data for a queue or all queues",
 	Long: `
 Info returns an overview of stats redismq. Including data about the consumers.
 When provided with a queue name only information about this queue is shown.
 `,
+}
+
+func init() {
+	cmdInfo.Flag.StringVar(&RedisHost, "host", "localhost", "redis hostname")
+	cmdInfo.Flag.StringVar(&RedisPort, "port", "6379", "redis port")
+	cmdInfo.Flag.StringVar(&RedisPassword, "pass", "", "redis password")
+	cmdInfo.Flag.Int64Var(&RedisDB, "db", 9, "redis database")
 }
 
 func runInfo(cmd *Command, args []string) {
@@ -23,22 +30,22 @@ func runInfo(cmd *Command, args []string) {
 		os.Exit(2)
 	}
 
-	ob := redismq.NewObserver(RedisURL, RedisPassword, RedisDBInt)
+	ob := redismq.NewObserver(RedisHost, RedisPort, RedisPassword, RedisDB)
 	queues, err := ob.GetAllQueues()
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "error fetching queue statistics: %s\n", err)
+		fmt.Fprintf(os.Stderr, "error fetching queue statistics from %s:%s db %d: %s\n", RedisHost, RedisPort, RedisDB, err)
 		os.Exit(2)
 	}
 
 	if len(queues) == 0 {
-		fmt.Println("no queues found in database")
+		fmt.Printf("no queues found in database on %s:%s db %d\n", RedisHost, RedisPort, RedisDB)
 		return
 	}
 
 	if len(args) == 1 {
 		name := args[0]
 		if !stringInSlice(name, queues) {
-			fmt.Fprintf(os.Stderr, "queue with the name %s does not exists\n", name)
+			fmt.Fprintf(os.Stderr, "queue with the name %s does not exists on %s:%s db %d\n", name, RedisHost, RedisPort, RedisDB)
 			os.Exit(2)
 		}
 		ob.UpdateQueueStats(name)
@@ -55,7 +62,7 @@ func runInfo(cmd *Command, args []string) {
 var statsTemplate = template.Must(template.New("stats").Parse(
 	`{{range $queue, $stats := .Queues}}
 
-Queue:	{{$queue}}
+Queue(s):	{{$queue}}
 _____________________________________________________________________
 InputRates:	sec		min		hour
 		{{$stats.InputRateSecond}}		{{$stats.InputRateMinute}}		{{$stats.InputRateHour}}

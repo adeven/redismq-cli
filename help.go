@@ -32,7 +32,7 @@ func runHelp(cmd *Command, args []string) {
 		}
 	}
 
-	fmt.Fprintf(os.Stderr, "Unknown help topic: %q. Run 'hk help'.\n", args[0])
+	fmt.Fprintf(os.Stderr, "Unknown help topic: %q. Run 'redismq-cli help'.\n", args[0])
 	os.Exit(2)
 }
 
@@ -42,6 +42,13 @@ Usage: redismq-cli [command] [options] [arguments]
 Commands:
 {{range .Commands}}{{if .Runnable}}{{if .List}}
     {{.Name | printf "%-8s"}}  {{.Short}}{{end}}{{end}}{{end}}
+
+General Options:
+    -host    redis hostname    (default: localhost)
+    -port    redis port        (default: 6371)
+    -pass    redis password    (default: "")
+    -db      redis db number   (default: 9)
+
 
 Run 'redismq-cli help [command]' for details.
 
