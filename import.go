@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/adeven/redismq"
+	"github.com/adjust/redismq"
 	"os"
 )
 
